@@ -380,11 +380,14 @@ def quiet_now(user: dict, timezone_name: str | None = None, moment: datetime | N
     return hour >= start or hour < end
 
 
-def post_telegram(token: str, chat_id: int, text: str) -> None:
-    payload = json.dumps({"chat_id": chat_id, "text": text}).encode()
+def post_telegram(token: str, chat_id: int, text: str, reply_markup: dict | None = None) -> None:
+    payload = {"chat_id": chat_id, "text": text}
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    data = json.dumps(payload).encode()
     request = urllib.request.Request(
         f"https://api.telegram.org/bot{token}/sendMessage",
-        data=payload,
+        data=data,
         headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
     )
     last_error: Exception | None = None

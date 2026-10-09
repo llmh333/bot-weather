@@ -1,5 +1,5 @@
 .env
 .venv/
-subscribers.json
 __pycache__/
 *.py[cod]
+*.json.tmp

@@ -6,6 +6,9 @@ on:
     - cron: "7 */3 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: weather-notify
   cancel-in-progress: true
@@ -13,7 +16,7 @@ concurrency:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -22,10 +25,14 @@ jobs:
       - run: python notify.py
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-          LAT: ${{ secrets.LAT }}
-          LON: ${{ secrets.LON }}
-          PLACE: ${{ secrets.PLACE }}
-          QUIET_FROM: ${{ secrets.QUIET_FROM }}
-          QUIET_TO: ${{ secrets.QUIET_TO }}
-          SUBSCRIBERS_JSON: ${{ secrets.SUBSCRIBERS_JSON }}
+      - name: Lưu vị trí mới
+        run: |
+          git config user.name "meridian"
+          git config user.email "meridian@users.noreply.github.com"
+          git add subscribers.json
+          if git diff --cached --quiet; then
+            echo "Vị trí không đổi"
+          else
+            git commit -m "Save Telegram locations"
+            git push
+          fi

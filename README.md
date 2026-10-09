@@ -35,17 +35,18 @@ cp .env.example .env
 
 ## Deploy miễn phí: GitHub Actions
 
-Repo public: runner chuẩn miễn phí. Repo private: khoảng 8 lần/ngày, dưới hạn mức 2.000 phút/tháng. Không cần `pip install` — `notify.py` chỉ dùng thư viện Python sẵn có.
+Vị trí không ghim trong secret. Bạn gửi vị trí trên Telegram, workflow ghi vào `subscribers.json` và lần chạy sau dùng đúng chỗ đó. Đổi chỗ thì gửi vị trí mới hoặc `/city`.
 
-1. Đẩy thư mục này lên GitHub. Không đẩy `.env` hay `subscribers.json` (đã có trong `.gitignore`).
-2. Settings → Secrets and variables → Actions:
-   - `BOT_TOKEN`
-   - `CHAT_ID` — nhắn `/start` cho bot, mở `https://api.telegram.org/bot<TOKEN>/getUpdates`, lấy `message.chat.id`
-   - `LAT` / `LON` — ví dụ Hải Phòng `20.8449` và `106.6881`
-   - `PLACE` — tên hiển thị, tuỳ chọn
-   - `QUIET_FROM` / `QUIET_TO` — tuỳ chọn, ví dụ `22` và `6`
-3. Tab Actions → `weather-every-3h` → Run workflow.
+Chỉ cần một secret: `BOT_TOKEN`. Không cần `CHAT_ID`, `LAT`, `LON`.
 
-Lịch `7 */3 * * *` UTC là 7h, 10h, 13h, 16h, 19h, 22h, 1h, 4h giờ Việt Nam. GitHub có thể trễ vài phút. Nếu đang trong giờ im lặng, lần chạy đó bỏ qua, không báo lỗi.
+Repo nên để private. File `subscribers.json` chứa tọa độ bạn gửi. Repo public thì ai cũng xem được.
 
-Nhiều người nhận: secret `SUBSCRIBERS_JSON`, dạng giống `subscribers.json` (`users` → mỗi người có `chat_id`, `lat`, `lon`, `place`, và tuỳ chọn `quiet_from`, `quiet_to`, `timezone`).
+1. Đẩy cả thư mục này lên GitHub, kể cả `subscribers.json` và `.github/workflows/weather.yml`.
+2. Settings → Secrets and variables → Actions → New repository secret: tên `BOT_TOKEN`, giá trị là token BotFather.
+3. Tab Actions → `weather-every-3h` → Run workflow một lần, để GitHub bật lịch.
+4. Mở bot, gõ `/start`, bấm gửi vị trí hoặc gõ `/city Hải Phòng`.
+5. Chạy lại workflow ngay. Bot trả lời và nhớ vị trí. Những lần sau (khoảng 7h, 10h, 13h, 16h, 19h, 22h, 1h, 4h giờ Việt Nam) tự gửi, không cần sửa tọa độ.
+
+GitHub có thể trễ vài phút. Lệnh bạn gõ chỉ được xử lý khi workflow chạy, nên sau khi đổi vị trí hãy bấm Run workflow nếu chưa đến giờ nhắc.
+
+Không chạy `bot.py` cùng lúc với Action. Hai bên cùng nghe Telegram sẽ tranh nhau.
