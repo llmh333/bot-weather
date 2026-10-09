@@ -1,0 +1,31 @@
+name: weather-every-3h
+
+on:
+  schedule:
+    # UTC. 7,10,13,16,19,22,1,4 giờ Việt Nam. GitHub có thể trễ vài phút.
+    - cron: "7 */3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: weather-notify
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python notify.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          LAT: ${{ secrets.LAT }}
+          LON: ${{ secrets.LON }}
+          PLACE: ${{ secrets.PLACE }}
+          QUIET_FROM: ${{ secrets.QUIET_FROM }}
+          QUIET_TO: ${{ secrets.QUIET_TO }}
+          SUBSCRIBERS_JSON: ${{ secrets.SUBSCRIBERS_JSON }}
